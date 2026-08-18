@@ -65,7 +65,7 @@ const AdminPanel = () => {
   const handleRoleChange = async (userId, newRole) => {
     try {
       const response = await fetch(`${API_URL}/admin/users/${userId}/role`, {
-        method: `PUT',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -90,7 +90,7 @@ const AdminPanel = () => {
     
     try {
       const response = await fetch(`${API_URL}/admin/users/${userId}`, {
-        method: `DELETE',
+        method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }

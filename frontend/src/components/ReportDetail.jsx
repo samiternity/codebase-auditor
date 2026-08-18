@@ -15,7 +15,7 @@ const ReportDetail = () => {
     const fetchReport = async () => {
       try {
         const response = await fetch(`${API_URL}/api/dashboard/audits/${id}`);
-        if (!response.ok) throw new Error(`Report not found");
+        if (!response.ok) throw new Error('Report not found');
         const data = await response.json();
         setReport(data);
       } catch (err) {
