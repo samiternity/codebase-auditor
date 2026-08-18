@@ -7,7 +7,7 @@ import TopViolationsChart from './TopViolationsChart';
 import AuditReportList from './AuditReportList';
 import './Dashboard.css';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = '';
 
 const Dashboard = () => {
   const { user, logout } = useContext(AuthContext);

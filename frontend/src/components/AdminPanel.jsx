@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ShieldAlert, Users, LayoutDashboard, LogOut, Trash2, GitBranch, CheckCircle } from 'lucide-react';
 import './Dashboard.css';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = '';
 
 const AdminPanel = () => {
   const { user, logout } = useContext(AuthContext);
