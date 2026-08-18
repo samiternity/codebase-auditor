@@ -75,3 +75,20 @@ class IngestionService:
 
 
         
+    def process_github_repo(self, repo_url: str):
+        import subprocess
+        import tempfile
+        import shutil
+        import os
+        
+        # Create a temporary directory
+        temp_dir = tempfile.mkdtemp(prefix="auditor_repo_")
+        try:
+            print(f"Cloning {repo_url} into {temp_dir}...")
+            subprocess.run(["git", "clone", repo_url, temp_dir], check=True)
+            print("Clone successful. Processing directory...")
+            self.process_directory(temp_dir)
+            print("Ingestion complete.")
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            print(f"Cleaned up {temp_dir}")
