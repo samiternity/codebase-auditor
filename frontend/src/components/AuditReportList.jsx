@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const API_URL = import.meta.env.VITE_API_URL || `${API_URL}';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const AuditReportList = () => {
   const [reports, setReports] = useState([]);
@@ -11,7 +11,7 @@ const AuditReportList = () => {
   useEffect(() => {
     const fetchAudits = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/dashboard/audits');
+        const response = await fetch(`${API_URL}/api/dashboard/audits`);
         const data = await response.json();
         setReports(data);
       } catch (error) {

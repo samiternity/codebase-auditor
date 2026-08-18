@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const API_URL = import.meta.env.VITE_API_URL || `${API_URL}';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -30,7 +30,7 @@ const ComplianceTrendChart = () => {
   useEffect(() => {
     const fetchTrend = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/dashboard/analytics/compliance-trend');
+        const response = await fetch(`${API_URL}/api/dashboard/analytics/compliance-trend`);
         const json = await response.json();
         setData(json);
       } catch (error) {

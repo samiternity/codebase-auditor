@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
-const API_URL = import.meta.env.VITE_API_URL || `${API_URL}';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -32,7 +32,7 @@ const TopViolationsChart = () => {
   useEffect(() => {
     const fetchViolations = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/dashboard/analytics/top-violations');
+        const response = await fetch(`${API_URL}/api/dashboard/analytics/top-violations`);
         const json = await response.json();
         setData(json);
       } catch (error) {

@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ShieldAlert, Users, LayoutDashboard, LogOut, Trash2 } from 'lucide-react';
 import './Dashboard.css';
 
-const API_URL = import.meta.env.VITE_API_URL || `${API_URL}';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const AdminPanel = () => {
   const { user, logout } = useContext(AuthContext);
@@ -26,7 +26,7 @@ const AdminPanel = () => {
 
     const fetchUsers = async () => {
       try {
-        const response = await fetch(`${API_URL}/admin/users', {
+        const response = await fetch(`${API_URL}/admin/users`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
@@ -56,7 +56,7 @@ const AdminPanel = () => {
   const handleRoleChange = async (userId, newRole) => {
     try {
       const response = await fetch(`${API_URL}/admin/users/${userId}/role`, {
-        method: 'PUT',
+        method: `PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -81,7 +81,7 @@ const AdminPanel = () => {
     
     try {
       const response = await fetch(`${API_URL}/admin/users/${userId}`, {
-        method: 'DELETE',
+        method: `DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }

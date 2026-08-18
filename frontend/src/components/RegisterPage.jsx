@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import './Auth.css';
 
-const API_URL = import.meta.env.VITE_API_URL || `${API_URL}';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const RegisterPage = () => {
   const [username, setUsername] = useState('');
@@ -21,7 +21,7 @@ const RegisterPage = () => {
     setError('');
 
     try {
-      const response = await fetch(`${API_URL}/auth/register', {
+      const response = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password })

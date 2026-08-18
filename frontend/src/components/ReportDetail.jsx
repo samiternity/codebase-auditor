@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, XCircle, AlertTriangle, Lightbulb } from 'lucide-react';
 import './Dashboard.css';
 
-const API_URL = import.meta.env.VITE_API_URL || `${API_URL}';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const ReportDetail = () => {
   const { id } = useParams();
@@ -15,7 +15,7 @@ const ReportDetail = () => {
     const fetchReport = async () => {
       try {
         const response = await fetch(`${API_URL}/api/dashboard/audits/${id}`);
-        if (!response.ok) throw new Error("Report not found");
+        if (!response.ok) throw new Error(`Report not found");
         const data = await response.json();
         setReport(data);
       } catch (err) {

@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import './Auth.css';
 
-const API_URL = import.meta.env.VITE_API_URL || `${API_URL}';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
@@ -21,7 +21,7 @@ const LoginPage = () => {
 
     try {
       // Assuming backend is running on localhost:8000
-      const response = await fetch(`${API_URL}/auth/login', {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
