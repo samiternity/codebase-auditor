@@ -1,7 +1,7 @@
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Depends
 from pydantic import BaseModel
 from services.ingestion import IngestionService
-from routes.auth import get_current_user
+from middleware.rbac import get_current_user
 
 router = APIRouter(prefix="/api/repositories", tags=["Repositories"])
 
