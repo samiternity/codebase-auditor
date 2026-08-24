@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const API_URL = '';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
-const AuditReportList = () => {
+const AuditReportList = ({ isOnboarded = true }) => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -23,6 +23,37 @@ const AuditReportList = () => {
 
     fetchAudits();
   }, []);
+
+  if (!isOnboarded) {
+    return (
+      <div style={{ overflowX: 'auto', marginTop: '1rem' }}>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>PR Title</th>
+              <th>Repository</th>
+              <th>Status</th>
+              <th>Score</th>
+              <th>Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[1, 2, 3, 4].map(i => (
+              <tr key={i}>
+                <td><div className="skeleton skeleton-text" style={{ width: '70%' }}></div></td>
+                <td><div className="skeleton skeleton-text" style={{ width: '50%' }}></div></td>
+                <td><div className="skeleton skeleton-text" style={{ width: '80%' }}></div></td>
+                <td><div className="skeleton skeleton-text" style={{ width: '60%' }}></div></td>
+                <td><div className="skeleton skeleton-text" style={{ width: '90%' }}></div></td>
+                <td><div className="skeleton skeleton-text" style={{ width: '40%' }}></div></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
 
   if (loading) {
     return <div style={{ padding: '20px', textAlign: 'center', color: '#64748B' }}>Loading recent audits...</div>;

@@ -13,23 +13,15 @@ class AuditEngine:
 
         context_string = "\n\n".join([point.payload["text"] for point in search_results])
 
-        prompt = f"""
-You are an expert Senior Code Auditor. Review the following PR Code against the provided Codebase Context (which contains our rules and ADRs).
-
-CODEBASE CONTEXT:
+        prompt = f"""Task: Audit PR diff against Codebase Rules.
+Rules:
 {context_string}
 
-NEW PR CODE:
+PR Diff:
 {pr_code}
 
-Respond in strict JSON format exactly like this:
-{{
-    "status": "pass" or "fail",
-    "score": <float between 0 and 100>,
-    "violations": ["list of rule violations if any"],
-    "suggested_fix": "description of how to fix the code"
-}}
-"""
+Output strictly JSON:
+{{"status":"pass"|"fail","score":0-100,"violations":["brief description"],"suggested_fix":"concise fix"}}"""
         response = completion(
             model="gemini/gemini-1.5-flash", 
             messages=[{"role": "user", "content": prompt}],

@@ -1,39 +1,36 @@
-import { useContext, useEffect, useState } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { LayoutDashboard, FileCode2, ShieldAlert, Users, Settings, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, FileCode2, ShieldAlert, Settings, Menu, X } from 'lucide-react';
 import ComplianceTrendChart from './ComplianceTrendChart';
 import TopViolationsChart from './TopViolationsChart';
 import AuditReportList from './AuditReportList';
+import RepoOnboardingCard from './RepoOnboardingCard';
 import './Dashboard.css';
 
-const API_URL = '';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const Dashboard = () => {
-  const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [overallScore, setOverallScore] = useState(100);
+  const [isOnboarded, setIsOnboarded] = useState(false);
 
   useEffect(() => {
+    // Check if system is onboarded
+    fetch(`${API_URL}/api/dashboard/system/status`)
+      .then(res => res.json())
+      .then(data => setIsOnboarded(data.is_onboarded))
+      .catch(err => {
+        console.error(err);
+        setIsOnboarded(false);
+      });
+
+    // Fetch score
     fetch(`${API_URL}/api/dashboard/analytics/score`)
       .then(res => res.json())
       .then(data => setOverallScore(data.score))
       .catch(console.error);
   }, []);
-
-  useEffect(() => {
-    if (!user) {
-      navigate('/login');
-    }
-  }, [user, navigate]);
-
-  if (!user) return null;
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
 
   return (
     <div className="dashboard-layout">
@@ -77,31 +74,15 @@ const Dashboard = () => {
             <LayoutDashboard size={18} aria-hidden="true" />
             Overview
           </Link>
-          <button className="nav-item" style={{ border: 'none', background: 'transparent', width: '100%', textAlign: 'left', fontFamily: 'inherit', fontSize: 'inherit' }} onClick={() => alert('Audit Reports view coming soon!')}>
+          <button className="nav-item btn-reset" onClick={() => alert('Audit Reports view coming soon!')}>
             <FileCode2 size={18} aria-hidden="true" />
             Audit Reports
           </button>
-          {user.role === 'admin' && (
-            <Link to="/admin" className="nav-item">
-              <Users size={18} aria-hidden="true" />
-              User Management
-            </Link>
-          )}
-          <button className="nav-item" style={{ border: 'none', background: 'transparent', width: '100%', textAlign: 'left', fontFamily: 'inherit', fontSize: 'inherit' }} onClick={() => alert('Settings coming soon!')}>
+          <button className="nav-item btn-reset" onClick={() => alert('Settings coming soon!')}>
             <Settings size={18} aria-hidden="true" />
             Settings
           </button>
         </nav>
-
-        <div className="sidebar-footer">
-          <div className="user-info">
-            <span className="user-name">{user.username}</span>
-            <span className="user-role">{user.role}</span>
-          </div>
-          <button onClick={handleLogout} className="logout-btn" title="Logout" aria-label="Log out">
-            <LogOut size={18} aria-hidden="true" />
-          </button>
-        </div>
       </aside>
 
       {/* Main Content Area */}
@@ -111,35 +92,44 @@ const Dashboard = () => {
         </header>
 
         <div className="dashboard-grid">
+          <RepoOnboardingCard />
           <div className="glass-card score-card">
             <div className="score-info">
               <h3>Overall Compliance Score</h3>
-              <p className="score-value">{overallScore}<span style={{ fontSize: '1.25rem', color: '#64748B' }}>%</span></p>
+              {!isOnboarded ? (
+                <div className="skeleton skeleton-score" style={{ marginTop: '0.5rem' }}></div>
+              ) : (
+                <p className="score-value">{overallScore}<span style={{ fontSize: '1.25rem', color: '#64748B' }}>%</span></p>
+              )}
             </div>
-            <div className="score-status status-good" role="status" aria-label="Score status: Healthy">
-              Healthy
-            </div>
+            {!isOnboarded ? (
+              <div className="skeleton" style={{ width: '80px', height: '30px', borderRadius: '15px' }}></div>
+            ) : (
+              <div className="score-status status-good" role="status" aria-label="Score status: Healthy">
+                Healthy
+              </div>
+            )}
           </div>
 
           <div className="glass-card trend-card">
             <div className="card-header">
               <h2 className="card-title">7-Day Compliance Trend</h2>
             </div>
-            <ComplianceTrendChart />
+            <ComplianceTrendChart isOnboarded={isOnboarded} />
           </div>
 
           <div className="glass-card violations-card">
             <div className="card-header">
               <h2 className="card-title">Top ADR Violations</h2>
             </div>
-            <TopViolationsChart />
+            <TopViolationsChart isOnboarded={isOnboarded} />
           </div>
 
           <div className="glass-card reports-card">
             <div className="card-header">
               <h2 className="card-title">Recent PR Audits</h2>
             </div>
-            <AuditReportList />
+            <AuditReportList isOnboarded={isOnboarded} />
           </div>
         </div>
       </main>

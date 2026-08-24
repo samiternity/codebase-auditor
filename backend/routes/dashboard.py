@@ -84,3 +84,13 @@ def get_top_violations(db: Session = Depends(get_db)):
         return [{"adr": "No Violations", "name": "System Healthy", "count": 0}]
         
     return top_violations
+
+@router.get("/system/status")
+def get_system_status():
+    try:
+        from services.vector_db import QdrantService
+        qdrant = QdrantService()
+        is_onboarded = qdrant.client.collection_exists(qdrant.collection_name)
+    except Exception:
+        is_onboarded = False
+    return {"is_onboarded": is_onboarded}

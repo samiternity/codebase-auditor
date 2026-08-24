@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
-const API_URL = '';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -25,7 +25,7 @@ const CustomTooltip = ({ active, payload }) => {
   return null;
 };
 
-const TopViolationsChart = () => {
+const TopViolationsChart = ({ isOnboarded = true }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -43,6 +43,17 @@ const TopViolationsChart = () => {
     };
     fetchViolations();
   }, []);
+
+  if (!isOnboarded) {
+    return (
+      <div style={{ height: 300, display: 'flex', flexDirection: 'column', gap: '1.5rem', justifyContent: 'center' }}>
+        <div className="skeleton skeleton-text" style={{ width: '80%' }}></div>
+        <div className="skeleton skeleton-text" style={{ width: '60%' }}></div>
+        <div className="skeleton skeleton-text" style={{ width: '40%' }}></div>
+        <div className="skeleton skeleton-text" style={{ width: '70%' }}></div>
+      </div>
+    );
+  }
 
   if (loading) {
     return <div style={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>Loading chart...</div>;

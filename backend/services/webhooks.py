@@ -31,7 +31,7 @@ async def verify_github_signature(request: Request):
     if not hmac.compare_digest(expected_signature, header):
         raise HTTPException(status_code=403, detail="Invalid signature")
 
-async def run_audit_pipeline(pr_code_diff: str, pr_url: str):
+async def run_audit_pipeline(pr_code_diff: str, pr_url: str, pr_id: int, repo_name: str):
     # trigger the engine
     engine = AuditEngine()
     result = engine.audit_pr(pr_code_diff)
@@ -48,8 +48,8 @@ async def run_audit_pipeline(pr_code_diff: str, pr_url: str):
     try:
         report = AuditReport(
             pr_url=pr_url,
-            pr_id=1,  # Hardcoded for now
-            repo_name="sample-repo", # Hardcoded for now
+            pr_id=pr_id,
+            repo_name=repo_name,
             status=status,
             compliance_score=score,
             # We must convert the Python list of violations into a JSON string for the DB
@@ -73,11 +73,30 @@ async def github_webhook(request: Request, background_tasks: BackgroundTasks):
     if "pull_request" not in payload:
         return {"status": "ignored", "message": "Not a pull request event"}
     
-    pr_url = payload["pull_request"]["html_url"]
-    pr_code_diff = "..." # (In a real app, we would fetch the diff from GitHub API here)
+    pr_html_url = payload["pull_request"]["html_url"]
+    pr_api_url = payload["pull_request"]["url"]
+    
+    # Fetch the PR diff
+    import urllib.request
+    import os
+    headers = {"Accept": "application/vnd.github.v3.diff"}
+    github_token = os.getenv("GITHUB_TOKEN")
+    if github_token:
+        headers["Authorization"] = f"Bearer {github_token}"
+        
+    req = urllib.request.Request(pr_api_url, headers=headers)
+    try:
+        with urllib.request.urlopen(req) as response:
+            pr_code_diff = response.read().decode('utf-8')
+    except Exception as e:
+        print(f"Error fetching PR diff: {e}")
+        pr_code_diff = ""
+    
+    pr_id = payload["pull_request"]["number"]
+    repo_name = payload["repository"]["name"]
     
     # pass the job to FastAPI's background worker
-    background_tasks.add_task(run_audit_pipeline, pr_code_diff, pr_url)
+    background_tasks.add_task(run_audit_pipeline, pr_code_diff, pr_html_url, pr_id, repo_name)
     
     return {"status": "success", "message": "Audit triggered"}
 

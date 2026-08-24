@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, XCircle, AlertTriangle, Lightbulb } from 'lucide-react';
 import './Dashboard.css';
 
-const API_URL = '';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const ReportDetail = () => {
   const { id } = useParams();

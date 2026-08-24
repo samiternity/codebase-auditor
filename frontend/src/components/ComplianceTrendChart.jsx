@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const API_URL = '';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -23,7 +23,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-const ComplianceTrendChart = () => {
+const ComplianceTrendChart = ({ isOnboarded = true }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -41,6 +41,10 @@ const ComplianceTrendChart = () => {
     };
     fetchTrend();
   }, []);
+
+  if (!isOnboarded) {
+    return <div className="skeleton skeleton-chart"></div>;
+  }
 
   if (loading) {
     return <div style={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>Loading chart...</div>;

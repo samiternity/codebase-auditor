@@ -32,104 +32,17 @@
 
 ---
 
-## Phase 1: Foundation & Authentication (Week 1)
+## Phase 1: Foundation (Week 1)
 
 ### 1.1 FastAPI Core Setup
-- [ ] Initialize FastAPI app with CORS enabled
-- [ ] Add health check endpoint: `GET /health`
-- [ ] Set up structured JSON logging middleware
-- [ ] Add global error handling middleware (catch 500s, log them)
-- [ ] Add request/response logging middleware
+- [x] Initialize FastAPI app with CORS enabled
+- [x] Add health check endpoint: `GET /health`
+- [x] Set up structured JSON logging middleware
+- [x] Add global error handling middleware
 
-**Code Files:**
-- `backend/main.py` - FastAPI initialization
-- `backend/middleware/logging.py` - Structured logging
-- `backend/middleware/error_handling.py` - Error handler
-
-### 1.2 User Model & SQLite Database
-- [ ] Design User table schema (id, username, email, password_hash, role, created_at, last_login)
-- [ ] Initialize SQLite database via SQLAlchemy ORM
-- [ ] Create User model class
-
-**Code Files:**
-- `backend/models/user.py` - SQLAlchemy User model
-- `backend/database.py` - SQLite initialization
-
-### 1.3 Authentication Endpoints
-- [ ] `POST /auth/register` - Create new user (first user = admin, others = junior-dev)
-- [ ] `POST /auth/login` - Authenticate user, return JWT token
-- [ ] `POST /auth/logout` - Invalidate token (optional for stateless JWT)
-- [ ] `GET /auth/me` - Return current user info
-
-**Code Files:**
-- `backend/routes/auth.py` - Auth endpoints
-- `backend/utils/auth.py` - JWT token generation/validation
-- `backend/utils/password.py` - Bcrypt hashing
-
-### 1.4 React Login Page
-- [ ] Login form with username, password fields
-- [ ] Register link (toggle between login/register forms)
-- [ ] JWT storage in localStorage
-- [ ] AuthContext provider (share token across app)
-- [ ] AuthProtectedRoute component (redirect to login if no token)
-
-**Code Files:**
-- `frontend/src/components/LoginPage.jsx`
-- `frontend/src/components/RegisterPage.jsx`
-- `frontend/src/context/AuthContext.jsx`
-- `frontend/src/components/AuthProtectedRoute.jsx`
-
-### 1.5 Testing
-- [ ] Test user registration (first user becomes admin)
-- [ ] Test login/logout flow
-- [ ] Test JWT expiration (24 hours)
-
-**Test Files:**
-- `backend/tests/test_auth.py` (5 tests)
-
-**Deliverable:** Login/register works. JWT persists across page reloads. First user is admin.
-
----
-
-## Phase 2: RBAC & User Management (Week 2)
-
-### 2.1 RBAC Middleware
-- [ ] Create `@require_role()` decorator for endpoint protection
-- [ ] Implement permission matrix: admin, senior-dev, junior-dev, viewer
-- [ ] Add role check to JWT token validation
-
-**Code Files:**
-- `backend/middleware/rbac.py` - RBAC decorator
-
-### 2.2 Admin User Management Endpoints
-- [ ] `GET /admin/users` - List all users (admin only)
-- [ ] `PUT /admin/users/{user_id}/role` - Upgrade user role (admin only)
-- [ ] `DELETE /admin/users/{user_id}` - Remove user (admin only)
-
-**Code Files:**
-- `backend/routes/admin.py` - Admin endpoints
-
-### 2.3 React Admin Panel
-- [ ] User list component (table with username, email, role)
-- [ ] Dropdown to change user role (admin only)
-- [ ] Delete user button
-
-**Code Files:**
-- `frontend/src/components/AdminPanel.jsx`
-- `frontend/src/components/UserManagementTable.jsx`
-
-### 2.4 RBAC Testing
-- [ ] Test junior-dev cannot access `/admin/*` endpoints (403)
-- [ ] Test senior-dev cannot access `/admin/*` endpoints (403)
-- [ ] Test admin can upgrade users
-- [ ] Test role persistence across login/logout
-
-**Test Files:**
-- `backend/tests/test_rbac.py` (5 tests)
-
-**Deliverable:** RBAC enforced. Admin can manage users. Junior-devs blocked from admin endpoints.
-
----
+### 1.2 SQLite Database
+- [x] Initialize SQLite database via SQLAlchemy ORM
+- [x] Create database schema for audit reports
 
 ## Phase 3: RAG Pipeline & Vector Search (Weeks 3-4)
 

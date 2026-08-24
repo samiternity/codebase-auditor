@@ -1,6 +1,6 @@
-# System Architecture & Self-Hosting Guide
+# System Architecture & Deployment Guide
 
-This document outlines the system architecture of the **Enterprise Codebase Auditor** and provides instructions for self-hosting it on a cloud provider like AWS EC2.
+This document outlines the system architecture of the **Codebase Auditor** and provides instructions for self-hosting it on a cloud provider like AWS EC2.
 
 ## 🏗️ System Design
 
@@ -9,15 +9,15 @@ The application is built on a microservices-style architecture deployed via Dock
 ### Components
 1. **GitHub Webhooks**: Serves as the entry point. GitHub sends `POST` payloads on PR events.
 2. **FastAPI Backend (Python)**: The core orchestrator. Verifies HMAC signatures, triggers RAG pipelines, and handles API requests from the frontend.
-3. **Qdrant Vector DB**: Stores chunked Architecture Decision Records (ADRs) as semantic vectors. Used during the audit process to inject relevant context into the LLM prompt.
-4. **SQLite Relational DB**: Stores immutable audit logs, user credentials (hashed via bcrypt), and RBAC metadata.
+3. **Qdrant Vector DB**: Stores chunked repository code and documentation as semantic vectors. Used during the audit process to inject relevant context into the LLM prompt.
+4. **SQLite Relational DB**: Stores immutable audit logs.
 5. **React Frontend**: A Vite-powered SPA dashboard for consuming analytics and viewing detailed LLM compliance reports.
 
 ### Event Flow
 1. Developer opens a Pull Request on GitHub.
 2. GitHub fires a Webhook to the FastAPI `/api/webhooks/github` endpoint.
-3. FastAPI fetches the PR diff, retrieves the top relevant ADRs from Qdrant via vector similarity search.
-4. FastAPI builds a prompt and queries the LLM (via LiteLLM / OpenRouter).
+3. FastAPI fetches the PR diff, retrieves the top relevant codebase rules from Qdrant via vector similarity search.
+4. FastAPI builds an optimized prompt and queries the LLM (via LiteLLM / Gemini).
 5. The LLM returns a structured JSON payload with violations and suggested fixes.
 6. FastAPI stores the result in SQLite.
 7. Frontend Dashboard dynamically fetches the updated stats and populates the UI.
@@ -26,7 +26,7 @@ The application is built on a microservices-style architecture deployed via Dock
 
 ## 🚀 Self-Hosting on AWS EC2
 
-Deploying the Enterprise Codebase Auditor requires a server capable of running Docker Compose. An AWS `t2.micro` or `t3.micro` EC2 instance is sufficient for small codebases.
+Deploying the Codebase Auditor requires a server capable of running Docker Compose. An AWS `t2.micro` or `t3.micro` EC2 instance is sufficient for small codebases.
 
 ### 1. Server Provisioning
 - Launch an Ubuntu Server on AWS EC2.
@@ -37,14 +37,11 @@ Deploying the Enterprise Codebase Auditor requires a server capable of running D
 Create a `.env` file in the root of the repository. You must configure the following variables:
 
 ```env
-# LLM Provider Key (Defaults to OpenRouter)
-GEMINI_API_KEY=your_openrouter_or_gemini_api_key
+# LLM Provider Key
+GEMINI_API_KEY=your_gemini_api_key
 
 # Webhook Security (Must match the secret set in GitHub Repo Settings)
 WEBHOOK_SECRET=my_super_secret_webhook_password_1234
-
-# JWT Signing Key for User Authentication
-JWT_SECRET=my_super_secret_jwt_signature_key_9876
 ```
 
 ### 3. Deploying the Containers
@@ -65,4 +62,4 @@ docker-compose up -d --build
 6. Select **"Let me select individual events"** and check **Pull requests**.
 7. Click **Add webhook**.
 
-The auditor is now live and will autonomously enforce your ADRs!
+The auditor is now live and will autonomously enforce your project rules!
