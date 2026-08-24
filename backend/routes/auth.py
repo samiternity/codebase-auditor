@@ -1,6 +1,6 @@
 import os
 import requests
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.responses import RedirectResponse
 from utils.auth import create_access_token
 
@@ -11,10 +11,16 @@ GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET", "")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
 
 @router.get("/github/login")
-def github_login():
+def github_login(request: Request):
     if not GITHUB_CLIENT_ID:
         raise HTTPException(status_code=500, detail="GITHUB_CLIENT_ID not configured")
-    github_auth_url = f"https://github.com/login/oauth/authorize?client_id={GITHUB_CLIENT_ID}&scope=user:email"
+    
+    # Dynamically build the redirect URI based on where the request came from
+    # E.g., http://13.53.245.246:8000/api/auth/github/callback
+    base_url = str(request.base_url).rstrip("/")
+    redirect_uri = f"{base_url}/api/auth/github/callback"
+    
+    github_auth_url = f"https://github.com/login/oauth/authorize?client_id={GITHUB_CLIENT_ID}&scope=user:email&redirect_uri={redirect_uri}"
     return RedirectResponse(url=github_auth_url)
 
 @router.get("/github/callback")
