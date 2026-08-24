@@ -8,6 +8,7 @@ from database import engine, Base
 from routes.dashboard import router as dashboard_router
 from services.webhooks import router as webhooks_router
 from routes.ingestion import router as ingestion_router
+from routes.auth import router as auth_router
 from middleware.logging import logging_middleware
 from middleware.error_handling import error_handling_middleware
 
@@ -34,6 +35,7 @@ app.add_middleware(
 )
 
 # Routers
+app.include_router(auth_router)
 app.include_router(dashboard_router)
 app.include_router(webhooks_router)
 app.include_router(ingestion_router)

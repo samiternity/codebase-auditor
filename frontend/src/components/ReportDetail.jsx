@@ -9,23 +9,39 @@ const ReportDetail = () => {
   const { id } = useParams();
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isReauditing, setIsReauditing] = useState(false);
   const [error, setError] = useState(null);
 
+  const fetchReport = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/dashboard/audits/${id}`);
+      if (!response.ok) throw new Error('Report not found');
+      const data = await response.json();
+      setReport(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchReport = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/dashboard/audits/${id}`);
-        if (!response.ok) throw new Error('Report not found');
-        const data = await response.json();
-        setReport(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchReport();
   }, [id]);
+
+  const handleReAudit = async () => {
+    if (!report || !report.pr_id) return;
+    setIsReauditing(true);
+    try {
+      const res = await fetch(`${API_URL}/api/webhooks/re-audit/${report.pr_id}`, { method: 'POST' });
+      if (!res.ok) throw new Error('Re-audit failed');
+      await fetchReport(); // Refresh report data
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setIsReauditing(false);
+    }
+  };
 
   if (loading) return <div style={{ padding: '2rem', color: 'var(--text-secondary)' }}>Loading report...</div>;
   if (error) return <div style={{ padding: '2rem', color: 'var(--text-danger)' }}>Error: {error}</div>;
@@ -41,7 +57,17 @@ const ReportDetail = () => {
             <ArrowLeft size={16} /> Back to Dashboard
           </Link>
           <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-            <h1>Audit Report: {report.pr_title || `PR #${report.pr_id}`}</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <h1>Audit Report: {report.pr_title || `PR #${report.pr_id}`}</h1>
+              <button 
+                onClick={handleReAudit} 
+                disabled={isReauditing}
+                className="view-btn"
+                style={{ opacity: isReauditing ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                {isReauditing ? 'Re-auditing...' : 'Re-Audit'}
+              </button>
+            </div>
             {report.status === 'pass' ? (
               <span className="badge badge-pass" style={{ fontSize: '1rem', padding: '0.5rem 1rem' }}><CheckCircle size={18} /> Compliant</span>
             ) : (
@@ -94,7 +120,19 @@ const ReportDetail = () => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {violations.map((v, i) => (
                   <div key={i} style={{ padding: '1rem', background: 'var(--status-fail-bg)', borderLeft: '4px solid var(--text-danger)', borderRadius: '4px' }}>
-                    <p style={{ margin: 0, color: 'var(--text-primary)' }}>{v}</p>
+                    <p style={{ margin: 0, color: 'var(--text-primary)', fontWeight: '500' }}>
+                      {typeof v === 'string' ? v : v.message}
+                    </p>
+                    {typeof v === 'object' && v.file && (
+                      <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.5rem 0 0 0' }}>
+                        In <code>{v.file}</code> {v.line && `at line ${v.line}`}
+                      </p>
+                    )}
+                    {typeof v === 'object' && v.snippet && (
+                      <pre style={{ background: 'rgba(0,0,0,0.3)', padding: '0.75rem', borderRadius: '4px', fontSize: '0.85rem', color: '#E2E8F0', marginTop: '0.5rem', overflowX: 'auto', fontFamily: 'var(--font-mono)' }}>
+                        {v.snippet}
+                      </pre>
+                    )}
                   </div>
                 ))}
               </div>

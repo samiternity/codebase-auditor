@@ -4,55 +4,49 @@ from services.vector_db import QdrantService
 IGNORE_DIRS = [".git", "node_modules", "__pycache__", ".venv", "dist", "build"]
 IGNORE_EXTS = [".png", ".jpg", ".jpeg", ".pyc", ".db", ".zip", ".tar"]
 
+LOG_QUEUE = []
+
+def log_msg(msg: str):
+    print(msg)
+    LOG_QUEUE.append(msg)
+
 class IngestionService:
 
     def file_ignore(self, file_path: str) -> bool:
-
-        # check if any ignored directory is in file path
         for dir in IGNORE_DIRS:
             if dir in file_path:
                 return True
-
-        # check if file path ends with ignored extension
         for ext in IGNORE_EXTS:
             if file_path.endswith(ext):
                 return True
-        
         return False
 
     def chunk_text(self, text: str, chunk_size: int = 500, overlap: int=50) -> list[str]:
         if not text or len(text) < chunk_size:
             return [text]
-
         chunks = []
         start = 0
-
         while start < len(text):
             end = start + chunk_size
             chunks.append(text[start:end])
             start += (chunk_size - overlap)
         return chunks
 
-
     def process_directory(self, repo_path:str):
         qdrant_service = QdrantService()
-
         qdrant_service.init_collection()
         all_chunks = []
-
+        log_msg("Scanning directory for files...")
+        
         for root, dirs, files in os.walk(repo_path):
             for file in files:
                 file_path = os.path.join(root, file)
-
-                # skip if file_ignore = true
                 if self.file_ignore(file_path):
                     continue
-
                 try:
                     with open(file_path, "r", encoding="utf-8") as f:
                         content = f.read()
                         chunks = self.chunk_text(content)
-
                         for chunk_str in chunks:
                             chunk_dict = {
                                 "text": chunk_str,
@@ -61,34 +55,27 @@ class IngestionService:
                                 "access_level": "public"
                             }
                             all_chunks.append(chunk_dict)
-
                 except Exception:
-                    print('file is unreadable')
                     continue
 
         if all_chunks:
+            log_msg(f"Upserting {len(all_chunks)} chunks to vector database...")
             qdrant_service.upsert_chunks(all_chunks)
-
-
-
-
-
-
+            log_msg("Vector database upsert complete.")
         
     def process_github_repo(self, repo_url: str):
         import subprocess
         import tempfile
         import shutil
-        import os
         
-        # Create a temporary directory
         temp_dir = tempfile.mkdtemp(prefix="auditor_repo_")
         try:
-            print(f"Cloning {repo_url} into {temp_dir}...")
+            log_msg(f"Cloning {repo_url}...")
             subprocess.run(["git", "clone", repo_url, temp_dir], check=True)
-            print("Clone successful. Processing directory...")
+            log_msg("Clone successful. Processing directory...")
             self.process_directory(temp_dir)
-            print("Ingestion complete.")
+            log_msg("Ingestion complete.")
+            LOG_QUEUE.append("DONE")
         finally:
             shutil.rmtree(temp_dir, ignore_errors=True)
-            print(f"Cleaned up {temp_dir}")
+            log_msg(f"Cleaned up temporary workspace.")

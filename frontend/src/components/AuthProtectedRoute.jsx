@@ -6,7 +6,7 @@ const AuthProtectedRoute = ({ children }) => {
   const { user, loading } = useContext(AuthContext);
 
   if (loading) {
-    return <div className="loading-spinner">Loading...</div>;
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#0F172A', color: '#22C55E' }}>Loading...</div>;
   }
 
   if (!user) {

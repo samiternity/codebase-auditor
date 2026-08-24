@@ -31,7 +31,7 @@ async def verify_github_signature(request: Request):
     if not hmac.compare_digest(expected_signature, header):
         raise HTTPException(status_code=403, detail="Invalid signature")
 
-async def run_audit_pipeline(pr_code_diff: str, pr_url: str, pr_id: int, repo_name: str):
+async def run_audit_pipeline(pr_code_diff: str, pr_url: str, pr_id: int, repo_name: str, existing_report_id: str = None):
     # trigger the engine
     engine = AuditEngine()
     result = engine.audit_pr(pr_code_diff)
@@ -43,16 +43,24 @@ async def run_audit_pipeline(pr_code_diff: str, pr_url: str, pr_id: int, repo_na
     suggested_fix = result.get("suggested_fix", "")
     
     # save to database
-
     db = SessionLocal()
     try:
+        if existing_report_id:
+            report = db.query(AuditReport).filter(AuditReport.id == existing_report_id).first()
+            if report:
+                report.status = status
+                report.compliance_score = score
+                report.violations = json.dumps(violations)
+                report.suggested_fix = suggested_fix
+                db.commit()
+                return
+                
         report = AuditReport(
             pr_url=pr_url,
             pr_id=pr_id,
             repo_name=repo_name,
             status=status,
             compliance_score=score,
-            # We must convert the Python list of violations into a JSON string for the DB
             violations=json.dumps(violations),
             suggested_fix=suggested_fix
         )
@@ -100,5 +108,36 @@ async def github_webhook(request: Request, background_tasks: BackgroundTasks):
     
     return {"status": "success", "message": "Audit triggered"}
 
-
-
+@router.post("/re-audit/{pr_id}")
+async def re_audit_pr(pr_id: int, background_tasks: BackgroundTasks):
+    db = SessionLocal()
+    try:
+        report = db.query(AuditReport).filter(AuditReport.pr_id == pr_id).order_by(AuditReport.created_at.desc()).first()
+        if not report:
+            raise HTTPException(status_code=404, detail="PR not found in audit history")
+        
+        pr_html_url = report.pr_url
+        repo_name = report.repo_name
+        
+        import urllib.request
+        import os
+        # Convert HTML URL to API URL roughly (assuming github.com/org/repo/pull/id)
+        api_url = pr_html_url.replace("github.com/", "api.github.com/repos/").replace("/pull/", "/pulls/")
+        
+        headers = {"Accept": "application/vnd.github.v3.diff"}
+        github_token = os.getenv("GITHUB_TOKEN")
+        if github_token:
+            headers["Authorization"] = f"Bearer {github_token}"
+            
+        req = urllib.request.Request(api_url, headers=headers)
+        try:
+            with urllib.request.urlopen(req) as response:
+                pr_code_diff = response.read().decode('utf-8')
+        except Exception as e:
+            print(f"Error fetching PR diff: {e}")
+            pr_code_diff = ""
+            
+        await run_audit_pipeline(pr_code_diff, pr_html_url, pr_id, repo_name, existing_report_id=report.id)
+        return {"status": "success", "message": "Re-audit completed"}
+    finally:
+        db.close()

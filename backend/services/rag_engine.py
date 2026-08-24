@@ -21,7 +21,7 @@ PR Diff:
 {pr_code}
 
 Output strictly JSON:
-{{"status":"pass"|"fail","score":0-100,"violations":["brief description"],"suggested_fix":"concise fix"}}"""
+{{"status":"pass"|"fail","score":0-100,"violations":[{{"message":"description", "file":"filename.py", "line":123, "snippet":"code diff segment"}}],"suggested_fix":"concise fix"}}"""
         response = completion(
             model="gemini/gemini-1.5-flash", 
             messages=[{"role": "user", "content": prompt}],

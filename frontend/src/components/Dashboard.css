@@ -6,16 +6,16 @@
   
   --text-primary: #F8FAFC;
   --text-secondary: #94A3B8;
-  --text-accent: #62b1ff;
+  --text-accent: #22C55E;
   --text-danger: #EF4444;
-  --text-gradient: linear-gradient(90deg, #9b8cff, #62b1ff);
+  --text-gradient: linear-gradient(90deg, #10b981, #22C55E);
   
   --border-subtle: rgba(255, 255, 255, 0.05);
   --border-row: rgba(255, 255, 255, 0.02);
   
   --hover-subtle: rgba(255, 255, 255, 0.05);
   --hover-row: rgba(255, 255, 255, 0.02);
-  --hover-active: rgba(98, 177, 255, 0.1);
+  --hover-active: rgba(34, 197, 94, 0.1);
   --hover-danger: rgba(239, 68, 68, 0.1);
   
   --status-good-bg: rgba(34, 197, 94, 0.1);
@@ -26,7 +26,7 @@
   --status-fail-text: #F87171;
   --status-fail-border: rgba(239, 68, 68, 0.2);
   
-  --btn-view-border: rgba(98, 177, 255, 0.3);
+  --btn-view-border: rgba(34, 197, 94, 0.3);
   
   --overlay-bg: rgba(15, 23, 42, 0.6);
 }
@@ -101,7 +101,7 @@
 }
 
 .nav-item.active {
-  background: linear-gradient(90deg, rgba(98, 177, 255, 0.15), transparent);
+  background: linear-gradient(90deg, rgba(34, 197, 94, 0.15), transparent);
   color: var(--text-primary);
 }
 
@@ -114,7 +114,7 @@
   width: 3px;
   background: var(--text-accent);
   border-radius: 0 4px 4px 0;
-  box-shadow: 0 0 8px rgba(98, 177, 255, 0.6);
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
 }
 
 .nav-item svg {
@@ -157,7 +157,7 @@
 
 .user-profile-card:hover {
   background: rgba(30, 41, 59, 0.8);
-  border-color: rgba(98, 177, 255, 0.2);
+  border-color: rgba(34, 197, 94, 0.2);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
@@ -165,14 +165,14 @@
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: linear-gradient(135deg, rgba(98, 177, 255, 0.2), rgba(155, 140, 255, 0.2));
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(155, 140, 255, 0.2));
   color: var(--text-accent);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
   font-size: 1.1rem;
-  border: 1px solid rgba(98, 177, 255, 0.3);
+  border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
 .user-info {
@@ -268,7 +268,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(135deg, rgba(98, 177, 255, 0.1), rgba(155, 140, 255, 0.1));
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(155, 140, 255, 0.1));
   border: 1px solid var(--btn-view-border);
 }
 

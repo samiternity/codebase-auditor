@@ -1,22 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { LayoutDashboard, FileCode2, ShieldAlert, Settings, Menu, X } from 'lucide-react';
+import { LayoutDashboard, FileCode2, ShieldAlert, Settings, Menu, X, LogOut } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
 import ComplianceTrendChart from './ComplianceTrendChart';
 import TopViolationsChart from './TopViolationsChart';
 import AuditReportList from './AuditReportList';
-import RepoOnboardingCard from './RepoOnboardingCard';
+import OnboardingWizard from './OnboardingWizard';
 import './Dashboard.css';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
 const Dashboard = () => {
+  const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [overallScore, setOverallScore] = useState(100);
   const [isOnboarded, setIsOnboarded] = useState(false);
 
   useEffect(() => {
-    // Check if system is onboarded
     fetch(`${API_URL}/api/dashboard/system/status`)
       .then(res => res.json())
       .then(data => setIsOnboarded(data.is_onboarded))
@@ -25,19 +26,20 @@ const Dashboard = () => {
         setIsOnboarded(false);
       });
 
-    // Fetch score
-    fetch(`${API_URL}/api/dashboard/analytics/score`)
-      .then(res => res.json())
-      .then(data => setOverallScore(data.score))
-      .catch(console.error);
-  }, []);
+    if (isOnboarded) {
+      fetch(`${API_URL}/api/dashboard/analytics/score`)
+        .then(res => res.json())
+        .then(data => setOverallScore(data.score))
+        .catch(console.error);
+    }
+  }, [isOnboarded]);
 
   return (
     <div className="dashboard-layout">
       {/* Mobile Header & Hamburger */}
       <div className="mobile-header">
         <div className="sidebar-header" style={{ marginBottom: 0, paddingBottom: 0, borderBottom: 'none' }}>
-          <ShieldAlert size={24} color="#62b1ff" aria-hidden="true" />
+          <ShieldAlert size={24} color="#22C55E" aria-hidden="true" />
           <h2>Auditor Pro</h2>
         </div>
         <button 
@@ -65,7 +67,7 @@ const Dashboard = () => {
         aria-label="Main Navigation"
       >
         <div className="sidebar-header desktop-only">
-          <ShieldAlert size={24} color="#62b1ff" aria-hidden="true" />
+          <ShieldAlert size={24} color="#22C55E" aria-hidden="true" />
           <h2>Auditor Pro</h2>
         </div>
         
@@ -83,6 +85,23 @@ const Dashboard = () => {
             Settings
           </button>
         </nav>
+
+        {user && (
+          <div className="sidebar-footer">
+            <div className="user-profile-card">
+              <div className="user-avatar">
+                {user.username ? user.username.charAt(0).toUpperCase() : 'U'}
+              </div>
+              <div className="user-info">
+                <span className="user-name">{user.username}</span>
+                <span className="user-role">{user.role}</span>
+              </div>
+              <button onClick={() => { logout(); navigate('/login'); }} className="logout-btn" title="Logout" aria-label="Log out">
+                <LogOut size={18} aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+        )}
       </aside>
 
       {/* Main Content Area */}
@@ -92,7 +111,10 @@ const Dashboard = () => {
         </header>
 
         <div className="dashboard-grid">
-          <RepoOnboardingCard />
+          {!isOnboarded ? (
+            <OnboardingWizard onComplete={() => setIsOnboarded(true)} />
+          ) : (
+            <>
           <div className="glass-card score-card">
             <div className="score-info">
               <h3>Overall Compliance Score</h3>
@@ -131,6 +153,8 @@ const Dashboard = () => {
             </div>
             <AuditReportList isOnboarded={isOnboarded} />
           </div>
+          </>
+          )}
         </div>
       </main>
     </div>
