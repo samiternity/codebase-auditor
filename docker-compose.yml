@@ -3,7 +3,7 @@ services:
     build:
       context: ./backend
     ports:
-      - "8000:8000"
+      - "80:8000"
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - WEBHOOK_SECRET=${WEBHOOK_SECRET}
