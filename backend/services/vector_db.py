@@ -21,10 +21,15 @@ class QdrantService:
             exists = False
 
         if not exists:
-            self.client.create_collection(
-                collection_name="codebase_chunks",
-                vectors_config=models.VectorParams(size=768, distance=models.Distance.COSINE),
-            )
+            try:
+                self.client.create_collection(
+                    collection_name="codebase_chunks",
+                    vectors_config=models.VectorParams(size=768, distance=models.Distance.COSINE),
+                )
+            except Exception as e:
+                # If it already exists, Qdrant might throw a 400 Bad Request
+                if "already exists" not in str(e):
+                    raise e
 
     def upsert_chunks(self, chunks:list[dict]):
         points = []
