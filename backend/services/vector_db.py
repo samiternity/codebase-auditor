@@ -61,5 +61,5 @@ class QdrantService:
 
 def get_embedding(text: str) -> list[float]:
 
-    response = embedding(model='gemini/text-embedding-004', input=text)
+    response = embedding(model='gemini/embedding-001', input=text)
     return response.data[0]['embedding']
