@@ -24,7 +24,7 @@ class QdrantService:
             try:
                 self.client.create_collection(
                     collection_name="codebase_chunks",
-                    vectors_config=models.VectorParams(size=768, distance=models.Distance.COSINE),
+                    vectors_config=models.VectorParams(size=3072, distance=models.Distance.COSINE),
                 )
             except Exception as e:
                 # If it already exists, Qdrant might throw a 400 Bad Request
@@ -61,5 +61,5 @@ class QdrantService:
 
 def get_embedding(text: str) -> list[float]:
 
-    response = embedding(model='gemini/embedding-001', input=text)
+    response = embedding(model='gemini/gemini-embedding-001', input=text)
     return response.data[0]['embedding']
