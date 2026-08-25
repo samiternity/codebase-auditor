@@ -14,12 +14,17 @@ class QdrantService:
         self.collection_name = "codebase_chunks"
 
     def init_collection(self):
-        if not self.client.collection_exists(collection_name=self.collection_name):
+        exists = False
+        try:
+            exists = self.client.collection_exists(collection_name=self.collection_name)
+        except Exception:
+            exists = False
 
+        if not exists:
             self.client.create_collection(
-            collection_name="codebase_chunks",
-            vectors_config=models.VectorParams(size=768, distance=models.Distance.COSINE),
-        )
+                collection_name="codebase_chunks",
+                vectors_config=models.VectorParams(size=768, distance=models.Distance.COSINE),
+            )
 
     def upsert_chunks(self, chunks:list[dict]):
         points = []

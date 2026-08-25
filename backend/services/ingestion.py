@@ -73,7 +73,12 @@ class IngestionService:
             log_msg(f"Cloning {repo_url}...")
             subprocess.run(["git", "clone", repo_url, temp_dir], check=True)
             log_msg("Clone successful. Processing directory...")
-            self.process_directory(temp_dir)
+            try:
+                self.process_directory(temp_dir)
+            except Exception as e:
+                import traceback
+                log_msg(f"CRITICAL ERROR in process_directory: {e}")
+                log_msg(traceback.format_exc())
             log_msg("Ingestion complete.")
             LOG_QUEUE.append("DONE")
         finally:
