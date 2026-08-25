@@ -16,8 +16,9 @@ def github_login(request: Request):
         raise HTTPException(status_code=500, detail="GITHUB_CLIENT_ID not configured")
     
     # Dynamically build the redirect URI based on where the request came from
-    # E.g., http://13.53.245.246:8000/api/auth/github/callback
     base_url = str(request.base_url).rstrip("/")
+    if base_url.startswith("http://") and "localhost" not in base_url and "127.0.0.1" not in base_url:
+        base_url = base_url.replace("http://", "https://")
     redirect_uri = f"{base_url}/api/auth/github/callback"
     
     github_auth_url = f"https://github.com/login/oauth/authorize?client_id={GITHUB_CLIENT_ID}&scope=user:email&redirect_uri={redirect_uri}"

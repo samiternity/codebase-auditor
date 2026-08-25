@@ -1,7 +1,7 @@
 export async function onRequest(context) {
   const { request } = context;
   const url = new URL(request.url);
-  const targetUrl = `http://13.53.245.246${url.pathname}${url.search}`;
+  const targetUrl = `https://packets-attach-recovered-endless.trycloudflare.com${url.pathname}${url.search}`;
   
   const headers = new Headers(request.headers);
   headers.delete("Host");
