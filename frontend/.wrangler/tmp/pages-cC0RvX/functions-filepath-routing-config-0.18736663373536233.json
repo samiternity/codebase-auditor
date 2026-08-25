@@ -1,0 +1,29 @@
+{
+  "routes": [
+    {
+      "routePath": "/admin/:path*",
+      "mountPath": "/admin",
+      "method": "",
+      "module": [
+        "admin/[[path]].js:onRequest"
+      ]
+    },
+    {
+      "routePath": "/api/:path*",
+      "mountPath": "/api",
+      "method": "",
+      "module": [
+        "api/[[path]].js:onRequest"
+      ]
+    },
+    {
+      "routePath": "/auth/:path*",
+      "mountPath": "/auth",
+      "method": "",
+      "module": [
+        "auth/[[path]].js:onRequest"
+      ]
+    }
+  ],
+  "baseURL": "/"
+}
